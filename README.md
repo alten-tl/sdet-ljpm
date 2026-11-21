@@ -78,6 +78,124 @@ The local base URL is `http://127.0.0.1:3000`.
 }
 ```
 
+## Example API responses
+
+The following examples were captured while testing the endpoints locally with Postman.
+
+### Create appointment — `POST`
+
+**Expected HTTP status:** `201 Created`
+
+```json
+{
+  "message": "Appointment created successfully.",
+  "data": {
+    "id": "d44df93b-8dc2-4edd-93f5-7696fb7d3aca",
+    "customer_id": "11111111-1111-1111-1111-111111111111",
+    "vehicle_id": "22222222-2222-2222-2222-222222222222",
+    "appointment_date": "2027-01-15",
+    "appointment_time": "10:35:00",
+    "created_at": "2026-11-21 08:01:31.718108+00:00",
+    "updated_at": "2026-11-21 08:01:31.718108+00:00",
+    "comments": "Initial appointment",
+    "status": "HABILITADA"
+  }
+}
+```
+
+### Create appointment with an already reserved time — `POST`
+
+**Expected HTTP status:** `409 Conflict`
+
+The API rejects an appointment when an enabled appointment already reserves the same date and time.
+
+```json
+{
+  "message": "The selected date and time are already reserved."
+}
+```
+
+### List appointments by date — `GET`
+
+**Expected HTTP status:** `200 OK`
+
+Request example:
+
+```text
+GET /appointments?date=2027-01-15&status=HABILITADA
+```
+
+Response example:
+
+```json
+{
+  "date": "2027-01-15",
+  "count": 1,
+  "data": [
+    {
+      "id": "e4ae1bdd-a16c-452a-8658-d0246c41784a",
+      "customer_id": "11111111-1111-1111-1111-111111111111",
+      "customer_name": "Alex Morgan",
+      "vehicle_id": "22222222-2222-2222-2222-222222222222",
+      "vehicle_plates": "ABC-123-A",
+      "vehicle_model": "Honda Accord",
+      "appointment_date": "2027-01-15",
+      "appointment_time": "11:30:00",
+      "created_at": "2026-11-21 07:47:19.793360+00:00",
+      "updated_at": "2026-11-21 07:56:57.120844+00:00",
+      "comments": "Initial appointment",
+      "status": "HABILITADA"
+    }
+  ]
+}
+```
+
+### Reschedule appointment — `PUT`
+
+**Expected HTTP status:** `200 OK`
+
+Response example:
+
+```json
+{
+  "message": "Appointment rescheduled successfully.",
+  "data": {
+    "id": "e4ae1bdd-a16c-452a-8658-d0246c41784a",
+    "customer_id": "11111111-1111-1111-1111-111111111111",
+    "vehicle_id": "22222222-2222-2222-2222-222222222222",
+    "appointment_date": "2027-01-15",
+    "appointment_time": "11:30:00",
+    "created_at": "2026-11-21 07:47:19.793360+00:00",
+    "updated_at": "2026-11-21 07:56:57.120844+00:00",
+    "comments": "Initial appointment",
+    "status": "HABILITADA"
+  }
+}
+```
+
+### Cancel appointment — `PATCH`
+
+**Expected HTTP status:** `200 OK`
+
+The appointment remains in the database. Its status changes to `DESHABILITADA`, and `updated_at` is refreshed.
+
+```json
+{
+  "message": "Appointment cancelled successfully.",
+  "data": {
+    "id": "e4ae1bdd-a16c-452a-8658-d0246c41784a",
+    "customer_id": "11111111-1111-1111-1111-111111111111",
+    "vehicle_id": "22222222-2222-2222-2222-222222222222",
+    "appointment_date": "2027-01-15",
+    "appointment_time": "11:30:00",
+    "created_at": "2026-11-21 07:47:19.793360+00:00",
+    "updated_at": "2026-11-21 08:00:06.749343+00:00",
+    "comments": "Initial appointment",
+    "status": "DESHABILITADA"
+  }
+}
+```
+
 ## Database model
 
 - One customer can have many appointments.
