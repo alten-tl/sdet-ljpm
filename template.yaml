@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Local appointments REST API backed by AWS Lambda and PostgreSQL.
+
+Globals:
+  Function:
+    Runtime: python3.13
+    Architectures:
+      - x86_64
+    Timeout: 15
+    MemorySize: 256
+    Environment:
+      Variables:
+        DB_HOST: db
+        DB_PORT: '5432'
+        DB_NAME: appointments_db
+        DB_USER: app_user
+        DB_PASSWORD: local_dev_password
+
+Resources:
+  AppointmentsApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: local
+
+  GetAppointmentsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers.get_appointments.lambda_handler
+      Events:
+        GetAppointments:
+          Type: Api
+          Properties:
+            RestApiId: !Ref AppointmentsApi
+            Path: /appointments
+            Method: get
+
+  CreateAppointmentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers.create_appointment.lambda_handler
+      Events:
+        CreateAppointment:
+          Type: Api
+          Properties:
+            RestApiId: !Ref AppointmentsApi
+            Path: /customers/{customerId}/appointments
+            Method: post
+
+  RescheduleAppointmentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers.reschedule_appointment.lambda_handler
+      Events:
+        RescheduleAppointment:
+          Type: Api
+          Properties:
+            RestApiId: !Ref AppointmentsApi
+            Path: /appointments/{appointmentId}
+            Method: put
+
+  CancelAppointmentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers.cancel_appointment.lambda_handler
+      Events:
+        CancelAppointment:
+          Type: Api
+          Properties:
+            RestApiId: !Ref AppointmentsApi
+            Path: /appointments/{appointmentId}/cancel
+            Method: patch
+
+Outputs:
+  LocalApiDescription:
+    Description: Local API Gateway simulator endpoint.
+    Value: http://127.0.0.1:3000
